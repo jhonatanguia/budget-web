@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Household Budget OS</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" type="button" aria-label="Open navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="brand">
+          <span class="brand-mark">HB</span>
+          <div>
+            <h1>Household Budget OS</h1>
+            <p>Weekly cash flow, expenses, and allocation planning</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <label for="globalMonth">Month</label>
+          <select id="globalMonth"></select>
+        </div>
+      </header>
+
+      <aside class="sidebar" id="sidebar">
+        <nav aria-label="Main navigation">
+          <button class="nav-button active" data-view="dashboard" type="button">Dashboard</button>
+          <button class="nav-button" data-view="entries" type="button">Weekly Entries</button>
+          <button class="nav-button" data-view="settings" type="button">Settings</button>
+          <button class="nav-button" data-view="guide" type="button">Guide</button>
+        </nav>
+        <div class="sidebar-note">
+          <strong>Private by default</strong>
+          <span>Your data saves in this browser. Export a backup if you want to move devices.</span>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section class="view active" id="dashboardView" aria-labelledby="dashboardTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Budget cockpit</p>
+              <h2 id="dashboardTitle">Dashboard</h2>
+            </div>
+            <div class="action-row">
+              <button class="secondary-button" id="exportButton" type="button">Export backup</button>
+              <label class="secondary-button file-button" for="importFile">Import backup</label>
+              <input id="importFile" type="file" accept="application/json" />
+            </div>
+          </div>
+
+          <div class="kpi-grid" id="kpiGrid"></div>
+
+          <section class="insight-panel">
+            <div>
+              <p class="eyebrow">Focus this month</p>
+              <h3 id="monthlyFocusTitle">No spending yet</h3>
+              <p id="monthlyFocusText">Add weekly entries to see your biggest category and whether expenses are moving down.</p>
+            </div>
+            <div class="focus-list" id="focusList"></div>
+          </section>
+
+          <div class="chart-grid">
+            <section class="chart-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Annual trend</p>
+                  <h3>Income, expenses, and 3-month average</h3>
+                </div>
+              </div>
+              <canvas id="annualChart" height="280"></canvas>
+            </section>
+
+            <section class="chart-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Selected month</p>
+                  <h3>Weekly flow and allocations</h3>
+                </div>
+              </div>
+              <canvas id="weeklyChart" height="280"></canvas>
+            </section>
+
+            <section class="chart-panel wide-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Spending mix</p>
+                  <h3>Where the money is going</h3>
+                </div>
+              </div>
+              <div class="mix-layout">
+                <canvas id="categoryChart" height="260"></canvas>
+                <div class="rank-list" id="categoryRank"></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="entriesView" aria-labelledby="entriesTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Weekly entries</p>
+              <h2 id="entriesTitle">Add income and expenses</h2>
+            </div>
+            <div class="week-switch" id="weekSwitch"></div>
+          </div>
+
+          <form class="entry-form" id="entryForm">
+            <div class="field">
+              <label for="entryDate">Date</label>
+              <input id="entryDate" type="date" />
+            </div>
+            <div class="field">
+              <label for="entryType">Type</label>
+              <select id="entryType">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="entryCategory">Category</label>
+              <select id="entryCategory"></select>
+            </div>
+            <div class="field amount-field">
+              <label for="entryAmount">Amount</label>
+              <input id="entryAmount" type="number" min="0" step="0.01" placeholder="0.00" required />
+            </div>
+            <div class="field note-field">
+              <label for="entryNote">Note</label>
+              <input id="entryNote" type="text" placeholder="Paycheque, groceries, gym, car..." />
+            </div>
+            <button class="primary-button" type="submit">Add entry</button>
+          </form>
+
+          <div class="entry-summary" id="entrySummary"></div>
+
+          <section class="table-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Current week</p>
+                <h3 id="ledgerTitle">Week 1 entries</h3>
+              </div>
+              <button class="secondary-button danger" id="clearWeekButton" type="button">Clear week</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Note</th>
+                    <th>Amount</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="settingsView" aria-labelledby="settingsTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Controls</p>
+              <h2 id="settingsTitle">Budget settings</h2>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <section class="settings-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Allocation engine</p>
+                  <h3>Percentages</h3>
+                </div>
+              </div>
+              <div class="field">
+                <label for="allocationMode">Weekly allocation mode</label>
+                <select id="allocationMode">
+                  <option value="mtd">Month-to-date smoothing</option>
+                  <option value="independent">Independent weekly</option>
+                </select>
+              </div>
+              <div class="allocation-list" id="allocationList"></div>
+              <div class="effective-box" id="effectiveBox"></div>
+            </section>
+
+            <section class="settings-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Flexible categories</p>
+                  <h3>Rename custom expenses</h3>
+                </div>
+              </div>
+              <div class="custom-category-fields" id="customCategoryFields"></div>
+              <div class="mini-note">
+                These labels update the dropdown, dashboard, and all weekly entry summaries.
+              </div>
+            </section>
+
+            <section class="settings-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Data tools</p>
+                  <h3>Backup and reset</h3>
+                </div>
+              </div>
+              <button class="secondary-button" id="settingsExportButton" type="button">Export backup</button>
+              <label class="secondary-button file-button" for="settingsImportFile">Import backup</label>
+              <input id="settingsImportFile" type="file" accept="application/json" />
+              <button class="secondary-button danger" id="resetButton" type="button">Reset all data</button>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="guideView" aria-labelledby="guideTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Guide</p>
+              <h2 id="guideTitle">How to use the budget</h2>
+            </div>
+          </div>
+
+          <div class="accordion" id="guideAccordion"></div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
